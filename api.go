@@ -9,10 +9,33 @@ import (
 	"github.com/gorilla/mux"
 )
 
+func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) error {
+
+	id := mux.Vars(r)["id"]
+	// We can then do something like : DB.getId(id) ...
+	fmt.Print(id)
+
+	account := NewAccount("Amine", "ELGH")
+
+	return WriteJson(w, http.StatusOK, account)
+}
+
+func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) error {
+	return nil
+}
+
+func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) error {
+	return nil
+}
+
+func (s *APIServer) handleTransfer(w http.ResponseWriter, r *http.Request) error {
+	return nil
+}
+
 func WriteJson(w http.ResponseWriter, status int, v interface{}) error {
 	// Start Writing JSON response
-	w.WriteHeader(status)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
 	return json.NewEncoder(w).Encode(v)
 }
 
@@ -47,6 +70,8 @@ func (s *APIServer) Run() {
 
 	router.HandleFunc("/account", makeHttpHandleFunc(s.handleAccount))
 
+	router.HandleFunc("/account/{id}", makeHttpHandleFunc(s.handleGetAccount))
+
 	log.Println("SERVER RUNNING ON PORT : ", s.listenAddr)
 
 	http.ListenAndServe(s.listenAddr, router)
@@ -65,22 +90,3 @@ func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error 
 
 	return fmt.Errorf("method not allowed : %s", r.Method)
 }
-
-func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) error {
-
-	account := NewAccount("Amine", "ELGH")
-
-	return WriteJson(w, http.StatusOK, account)
-}
-
-func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) error {
-	return nil
-}
-
-func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) error {
-	return nil
-}
-
-// func (s *APIServer) handleTransfer(w http.ResponseWriter, r *http.Request) error {
-// 	return nil
-// }
