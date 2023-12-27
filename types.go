@@ -2,15 +2,13 @@ package main
 
 import (
 	"math/rand"
-
-	"github.com/google/uuid"
 )
 
 type Account struct {
 	ID        int
 	FirstName string
 	LastName  string
-	Number    uuid.UUID
+	Number    int64
 	Balance   int64
 }
 
@@ -19,6 +17,6 @@ func NewAccount(FirstName, LastName string) *Account {
 		ID:        rand.Intn(100000),
 		FirstName: FirstName,
 		LastName:  LastName,
-		Number:    uuid.New(),
+		Number:    int64(rand.Intn(100000)),
 	}
 }

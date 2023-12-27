@@ -25,6 +25,7 @@ type ApiError struct {
 func makeHttpHandleFunc(f apiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := f(w, r); err != nil {
+			fmt.Print("Hello")
 			// Handle the error :
 			WriteJson(w, http.StatusBadRequest, ApiError{Error: err.Error()})
 		}
@@ -48,29 +49,17 @@ func (s *APIServer) Run() {
 
 	log.Println("SERVER RUNNING ON PORT : ", s.listenAddr)
 
-	http.ListenAndServe(s.listenAddr, makeHttpHandleFunc(s.handleAccount))
+	http.ListenAndServe(s.listenAddr, router)
 }
 
 func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error {
 
-	// switch r.Method {
-	// case "GET":
-	// 	return s.handleGetAccount(w, r)
-	// case "POST":
-	// 	return s.handleCreateAccount(w, r)
-	// case "DELETE":
-	// 	return s.handleDeleteAccount(w, r)
-	// }
-
-	if r.Method == "GET" {
+	switch r.Method {
+	case "GET":
 		return s.handleGetAccount(w, r)
-	}
-
-	if r.Method == "POST" {
+	case "POST":
 		return s.handleCreateAccount(w, r)
-	}
-
-	if r.Method == "DELETE" {
+	case "DELETE":
 		return s.handleDeleteAccount(w, r)
 	}
 
@@ -78,14 +67,14 @@ func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error 
 }
 
 func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) error {
-	return nil
-}
-
-func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) error {
 
 	account := NewAccount("Amine", "ELGH")
 
 	return WriteJson(w, http.StatusOK, account)
+}
+
+func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) error {
+	return nil
 }
 
 func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) error {
