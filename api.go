@@ -22,22 +22,23 @@ func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) err
 
 func (s *APIServer) handleGetAccountById(w http.ResponseWriter, r *http.Request) error {
 
-	id := mux.Vars(r)["id"]
-	// We can then do something like : DB.getId(id) ...
-	// fmt.Print(id)
-	idConv, err := strconv.Atoi(id)
+	if r.Method == "GET" {
 
-	if err != nil {
-		// log.Fatal("Conversion error !")
-		return fmt.Errorf("conversion error ! make sure to enter a vali ID")
+		idConv, err := getId(r)
+		if err != nil {
+			return err
+		}
+		account, err := s.store.GetAccountByID(idConv)
+		if err != nil {
+			return err
+		}
+
+		return WriteJson(w, http.StatusOK, account)
 	}
-
-	account, err := s.store.GetAccountByID(idConv)
-	if err != nil {
-		return err
+	if r.Method == "DELETE" {
+		return s.handleDeleteAccount(w, r)
 	}
-
-	return WriteJson(w, http.StatusOK, account)
+	return fmt.Errorf("following method not allowed : %s", r.Method)
 }
 
 func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) error {
@@ -59,11 +60,34 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) error {
-	return nil
+
+	idConv, err := getId(r)
+	if err != nil {
+		return err
+	}
+	if err := s.store.DeleteAccount(idConv); err != nil {
+		return err
+	}
+
+	return WriteJson(w, http.StatusOK, map[string]int{"id deleted ": idConv})
 }
 
 func (s *APIServer) handleTransfer(w http.ResponseWriter, r *http.Request) error {
 	return nil
+}
+
+func getId(r *http.Request) (int, error) {
+	id := mux.Vars(r)["id"]
+	// We can then do something like : DB.getId(id) ...
+	// fmt.Print(id)
+	idConv, err := strconv.Atoi(id)
+
+	if err != nil {
+		// log.Fatal("Conversion error !")
+		return idConv, fmt.Errorf("conversion error ! make sure to enter a vali ID")
+	}
+
+	return idConv, nil
 }
 
 func WriteJson(w http.ResponseWriter, status int, v interface{}) error {
@@ -76,7 +100,7 @@ func WriteJson(w http.ResponseWriter, status int, v interface{}) error {
 type apiFunc func(http.ResponseWriter, *http.Request) error
 
 type ApiError struct {
-	Error string
+	Error string `json:"error"`
 }
 
 func makeHttpHandleFunc(f apiFunc) http.HandlerFunc {
