@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -23,9 +24,18 @@ func (s *APIServer) handleGetAccountById(w http.ResponseWriter, r *http.Request)
 
 	id := mux.Vars(r)["id"]
 	// We can then do something like : DB.getId(id) ...
-	fmt.Print(id)
+	// fmt.Print(id)
+	idConv, err := strconv.Atoi(id)
 
-	account := NewAccount("Amine", "ELGH")
+	if err != nil {
+		// log.Fatal("Conversion error !")
+		return fmt.Errorf("conversion error ! make sure to enter a vali ID")
+	}
+
+	account, err := s.store.GetAccountByID(idConv)
+	if err != nil {
+		return err
+	}
 
 	return WriteJson(w, http.StatusOK, account)
 }
