@@ -21,7 +21,21 @@ func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) err
 }
 
 func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) error {
-	return nil
+
+	createAccountReq := new(CreateAccountRequest) // Allocates memory for the struct and returns a pointer.
+	// createAccountReq := CreateAccountRequest{}	//Creates an actual instance of the struct (not a pointer). so if u want to use in the Decode methode , u need to pass a reference & to it
+
+	if err := json.NewDecoder(r.Body).Decode(createAccountReq); err != nil {
+		return err
+	}
+
+	account := NewAccount(createAccountReq.FirstName, createAccountReq.LastName)
+
+	if err := s.store.CreateAccount(account); err != nil {
+		return err
+	}
+
+	return WriteJson(w, http.StatusOK, account)
 }
 
 func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) error {
@@ -48,7 +62,7 @@ type ApiError struct {
 func makeHttpHandleFunc(f apiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := f(w, r); err != nil {
-			fmt.Print("Hello")
+			// fmt.Print("Hello")
 			// Handle the error :
 			WriteJson(w, http.StatusBadRequest, ApiError{Error: err.Error()})
 		}
@@ -57,11 +71,13 @@ func makeHttpHandleFunc(f apiFunc) http.HandlerFunc {
 
 type APIServer struct {
 	listenAddr string
+	store      Storage
 }
 
-func NewAPIServer(listenAddr string) *APIServer {
+func NewAPIServer(listenAddr string, store Storage) *APIServer {
 	return &APIServer{
 		listenAddr: listenAddr,
+		store:      store,
 	}
 }
 
