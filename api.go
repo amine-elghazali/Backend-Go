@@ -11,6 +11,16 @@ import (
 
 func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) error {
 
+	accounts, err := s.store.GetAccounts()
+	if err != nil {
+		return err
+	}
+
+	return WriteJson(w, http.StatusOK, accounts)
+}
+
+func (s *APIServer) handleGetAccountById(w http.ResponseWriter, r *http.Request) error {
+
 	id := mux.Vars(r)["id"]
 	// We can then do something like : DB.getId(id) ...
 	fmt.Print(id)
@@ -86,7 +96,7 @@ func (s *APIServer) Run() {
 
 	router.HandleFunc("/account", makeHttpHandleFunc(s.handleAccount))
 
-	router.HandleFunc("/account/{id}", makeHttpHandleFunc(s.handleGetAccount))
+	router.HandleFunc("/account/{id}", makeHttpHandleFunc(s.handleGetAccountById))
 
 	log.Println("SERVER RUNNING ON PORT : ", s.listenAddr)
 
