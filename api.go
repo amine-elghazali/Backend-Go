@@ -73,7 +73,13 @@ func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *APIServer) handleTransfer(w http.ResponseWriter, r *http.Request) error {
-	return nil
+
+	transferRequest := new(TransferRequet)
+	if err := json.NewDecoder(r.Body).Decode(transferRequest); err != nil {
+		return err
+	}
+
+	return WriteJson(w, http.StatusOK, transferRequest)
 }
 
 func getId(r *http.Request) (int, error) {
@@ -129,8 +135,8 @@ func (s *APIServer) Run() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/account", makeHttpHandleFunc(s.handleAccount))
-
 	router.HandleFunc("/account/{id}", makeHttpHandleFunc(s.handleGetAccountById))
+	router.HandleFunc("/transfer", makeHttpHandleFunc(s.handleTransfer))
 
 	log.Println("SERVER RUNNING ON PORT : ", s.listenAddr)
 

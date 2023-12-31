@@ -5,6 +5,11 @@ import (
 	"time"
 )
 
+type TransferRequet struct {
+	ToAccount string `json:"toAccount"`
+	Amount    int64  `json:"amount"`
+}
+
 type CreateAccountRequest struct {
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
