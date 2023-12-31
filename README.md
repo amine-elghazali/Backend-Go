@@ -6,3 +6,4 @@
 []    * JWT 
 [x]    * Docker
 []    * Specific Architecture / Design Pattern 
+[]      * Refactoring
