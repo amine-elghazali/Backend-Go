@@ -8,7 +8,7 @@ import (
 	"os"
 	"strconv"
 
-	jwt "github.com/golang-jwt/jwt/v4"
+	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/mux"
 )
 
@@ -117,6 +117,7 @@ func withJWTAuth(handlerFunc http.HandlerFunc) http.HandlerFunc {
 
 		if err != nil {
 			WriteJson(w, http.StatusForbidden, ApiError{Error: "invalid token"})
+			return
 		}
 
 		handlerFunc(w, r)
