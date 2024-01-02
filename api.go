@@ -58,6 +58,13 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
+	token, err := createJWT(account)
+	fmt.Println("token : ", token)
+
+	if err != nil {
+		return err
+	}
+
 	return WriteJson(w, http.StatusOK, account)
 }
 
@@ -105,18 +112,44 @@ func WriteJson(w http.ResponseWriter, status int, v interface{}) error {
 	return json.NewEncoder(w).Encode(v)
 }
 
+func permissionDenied(w http.ResponseWriter) {
+	WriteJson(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+
+}
+
 // Creating a Decoraator for JWT middleware Check
-func withJWTAuth(handlerFunc http.HandlerFunc) http.HandlerFunc {
+func withJWTAuth(handlerFunc http.HandlerFunc, s Storage) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Calling JWT Auth middleware check")
 
 		tokenString := r.Header.Get("x-jwt-token")
 
-		_, err := validateJWT(tokenString)
+		token, err := validateJWT(tokenString)
+
+		if err != nil || !token.Valid {
+			permissionDenied(w)
+			return
+		}
+
+		userId, err := getId(r)
 
 		if err != nil {
-			WriteJson(w, http.StatusForbidden, ApiError{Error: "invalid token"})
+			permissionDenied(w)
+			return
+		}
+
+		account, err := s.GetAccountByID(userId)
+
+		if err != nil {
+			permissionDenied(w)
+			return
+		}
+
+		claims := token.Claims.(jwt.MapClaims)
+
+		if account.Number != int64(claims["accountNumber"].(float64)) {
+			permissionDenied(w)
 			return
 		}
 
@@ -137,6 +170,22 @@ func validateJWT(tokenString string) (*jwt.Token, error) {
 		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
 		return []byte(secret), nil
 	})
+}
+
+func createJWT(account *Account) (string, error) {
+	// Create a new token object, specifying signing method and the claims
+	// you would like it to contain.
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"expiresAt":     15000,
+		"accountNumber": account.Number,
+	})
+	// It's better to use your own Claim Structure here , bcw this JWT Standard Claim is just a map,
+	// using ur own struct Much better so you can use pre defined types ...
+
+	secret := os.Getenv("JWT_SECRET")
+
+	// Sign and get the complete encoded token as a string using the secret
+	return token.SignedString([]byte(secret))
 }
 
 type apiFunc func(http.ResponseWriter, *http.Request) error
@@ -171,7 +220,7 @@ func (s *APIServer) Run() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/account", makeHttpHandleFunc(s.handleAccount))
-	router.HandleFunc("/account/{id}", withJWTAuth(makeHttpHandleFunc(s.handleGetAccountById)))
+	router.HandleFunc("/account/{id}", withJWTAuth(makeHttpHandleFunc(s.handleGetAccountById), s.store))
 	router.HandleFunc("/transfer", makeHttpHandleFunc(s.handleTransfer))
 
 	log.Println("SERVER RUNNING ON PORT : ", s.listenAddr)
