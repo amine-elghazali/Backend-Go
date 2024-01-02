@@ -3,7 +3,7 @@
 ## Project Includes the following : 
 - [x] Building a simple API .
 - [x] Postgres
-- [ ] JWT 
+- [x] JWT 
 - [x] Docker
 - [ ] Specific Architecture / Design Pattern 
 - [ ] Refactoring
