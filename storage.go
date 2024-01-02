@@ -4,8 +4,12 @@ import (
 	"database/sql"
 	"fmt"
 
+	models "github.com/amine-elghazali/Backend-Go/models"
+
 	_ "github.com/lib/pq"
 )
+
+type Account = models.Account
 
 type Storage interface {
 	GetAccounts() ([]*Account, error)

@@ -8,9 +8,13 @@ import (
 	"os"
 	"strconv"
 
+	models "github.com/amine-elghazali/Backend-Go/models"
 	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/mux"
 )
+
+type CreateAccountRequest = models.CreateAccountRequest
+type TransferRequest = models.TransferRequet
 
 func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) error {
 
@@ -52,7 +56,7 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
-	account := NewAccount(createAccountReq.FirstName, createAccountReq.LastName)
+	account := models.NewAccount(createAccountReq.FirstName, createAccountReq.LastName)
 
 	if err := s.store.CreateAccount(account); err != nil {
 		return err
@@ -83,7 +87,7 @@ func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) 
 
 func (s *APIServer) handleTransfer(w http.ResponseWriter, r *http.Request) error {
 
-	transferRequest := new(TransferRequet)
+	transferRequest := new(TransferRequest)
 	if err := json.NewDecoder(r.Body).Decode(transferRequest); err != nil {
 		return err
 	}
