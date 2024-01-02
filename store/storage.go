@@ -1,4 +1,4 @@
-package main
+package storage
 
 import (
 	"database/sql"
@@ -40,7 +40,7 @@ func NewPostgresStore() (*PostgresStore, error) {
 	}, nil
 }
 
-func (s *PostgresStore) init() error {
+func (s *PostgresStore) Init() error {
 	return s.CreateAccountTable()
 }
 

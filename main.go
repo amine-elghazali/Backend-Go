@@ -2,21 +2,23 @@ package main
 
 import (
 	"log"
+
+	store "github.com/amine-elghazali/Backend-Go/store"
 )
 
 func main() {
 
-	store, err := NewPostgresStore()
+	pgStore, err := store.NewPostgresStore()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err := store.init(); err != nil {
+	if err := pgStore.Init(); err != nil {
 		log.Fatal(err)
 	}
 
 	// fmt.Printf("%+v\n", store)
 
-	server := NewAPIServer(":3000", store)
+	server := NewAPIServer(":3000", pgStore)
 	server.Run()
 }

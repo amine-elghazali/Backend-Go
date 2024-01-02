@@ -9,12 +9,17 @@ import (
 	"strconv"
 
 	models "github.com/amine-elghazali/Backend-Go/models"
+	store "github.com/amine-elghazali/Backend-Go/store"
+
 	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/mux"
 )
 
 type CreateAccountRequest = models.CreateAccountRequest
 type TransferRequest = models.TransferRequet
+
+type Storage = store.Storage
+type Account = models.Account
 
 func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) error {
 

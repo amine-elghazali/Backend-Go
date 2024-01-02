@@ -5,5 +5,5 @@
 - [x] Postgres
 - [x] JWT 
 - [x] Docker
-- [ ] Specific Architecture / Design Pattern 
-- [ ] Refactoring
+- [ ] Specific Architecture / " Design Pattern  " 
+- [x] Refactoring
