@@ -16,7 +16,8 @@ import (
 )
 
 type CreateAccountRequest = models.CreateAccountRequest
-type TransferRequest = models.TransferRequet
+type TransferRequest = models.TransferRequest
+type LoginRequest = models.LoginRequest
 
 type Storage = store.Storage
 type Account = models.Account
@@ -228,6 +229,7 @@ func NewAPIServer(listenAddr string, store Storage) *APIServer {
 func (s *APIServer) Run() {
 	router := mux.NewRouter()
 
+	router.HandleFunc("/login", makeHttpHandleFunc(s.handleLogin))
 	router.HandleFunc("/account", makeHttpHandleFunc(s.handleAccount))
 	router.HandleFunc("/account/{id}", withJWTAuth(makeHttpHandleFunc(s.handleGetAccountById), s.store))
 	router.HandleFunc("/transfer", makeHttpHandleFunc(s.handleTransfer))
@@ -235,6 +237,16 @@ func (s *APIServer) Run() {
 	log.Println("SERVER RUNNING ON PORT : ", s.listenAddr)
 
 	http.ListenAndServe(s.listenAddr, router)
+}
+
+func (s *APIServer) handleLogin(w http.ResponseWriter, r *http.Request) error {
+	loginRequest := new(LoginRequest)
+	if err := json.NewDecoder(r.Body).Decode(loginRequest); err != nil {
+		return err
+	}
+	// fmt.Print(req)
+
+	return WriteJson(w, http.StatusOK, loginRequest)
 }
 
 func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error {
