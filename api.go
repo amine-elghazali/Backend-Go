@@ -62,18 +62,21 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
-	account := models.NewAccount(createAccountReq.FirstName, createAccountReq.LastName)
+	account, err := models.NewAccount(createAccountReq.FirstName, createAccountReq.LastName, createAccountReq.Password)
+	if err != nil {
+		return err
+	}
 
 	if err := s.store.CreateAccount(account); err != nil {
 		return err
 	}
 
-	token, err := createJWT(account)
-	fmt.Println("token : ", token)
+	// token, err := createJWT(account)
+	// fmt.Println("token : ", token)
 
-	if err != nil {
-		return err
-	}
+	// if err != nil {
+	// 	return err
+	// }
 
 	return WriteJson(w, http.StatusOK, account)
 }
@@ -240,6 +243,11 @@ func (s *APIServer) Run() {
 }
 
 func (s *APIServer) handleLogin(w http.ResponseWriter, r *http.Request) error {
+	// Checking request method first :
+	if r.Method != "POST" {
+		return fmt.Errorf("method not allowed : %s", r.Method)
+	}
+
 	loginRequest := new(LoginRequest)
 	if err := json.NewDecoder(r.Body).Decode(loginRequest); err != nil {
 		return err

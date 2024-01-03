@@ -5,4 +5,5 @@ build :
 run : build 
 	./bin/backend_go
 test : 
-	go test -v ./..
+	go test -v ./...
+# tests in the current directory and its subdirectories 
