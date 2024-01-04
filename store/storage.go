@@ -52,6 +52,7 @@ func (s *PostgresStore) CreateAccountTable() error {
 		first_name varchar(50),
 		last_name varchar(50),
 		number serial,
+		encryptedPassword varchar(100),
 		balance serial,
 		created_at timestamp )
 	`
@@ -63,14 +64,15 @@ func (s *PostgresStore) CreateAccountTable() error {
 func (s *PostgresStore) CreateAccount(account *Account) error {
 
 	sqlStatement := `insert into account 
-	(first_name,last_name,number,balance,created_at)
-	values($1,$2,$3,$4,$5)
+	(first_name,last_name,number,encryptedPassword,balance,created_at)
+	values($1,$2,$3,$4,$5,$6)
 	`
 	resp, err := s.db.Exec(
 		sqlStatement,
 		account.FirstName,
 		account.LastName,
 		account.Number,
+		account.EncryptedPassword,
 		account.Balance,
 		account.CreatedAt,
 	)
@@ -165,6 +167,7 @@ func scanIntoAnAccount(rows *sql.Rows) (*Account, error) {
 		&account.FirstName,
 		&account.LastName,
 		&account.Number,
+		&account.EncryptedPassword,
 		&account.Balance,
 		&account.CreatedAt,
 	)

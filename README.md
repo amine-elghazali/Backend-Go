@@ -7,5 +7,6 @@
 - [x] Docker
 - [ ] Specific Architecture / " Design Pattern  " 
 - [x] Refactoring
-- [ ] Login 
+- [x] Login 
+- [x] registration 
 - [x] Tests

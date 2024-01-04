@@ -18,6 +18,7 @@ import (
 type CreateAccountRequest = models.CreateAccountRequest
 type TransferRequest = models.TransferRequest
 type LoginRequest = models.LoginRequest
+type LoginResponse = models.LoginResponse
 
 type Storage = store.Storage
 type Account = models.Account
@@ -70,6 +71,8 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 	if err := s.store.CreateAccount(account); err != nil {
 		return err
 	}
+
+	// The code below `createJWT ...` was added for testing purposes (testing JWT Token - Validation ... )
 
 	// token, err := createJWT(account)
 	// fmt.Println("token : ", token)
@@ -158,6 +161,8 @@ func withJWTAuth(handlerFunc http.HandlerFunc, s Storage) http.HandlerFunc {
 			permissionDenied(w)
 			return
 		}
+
+		//	! Checking Claims !
 
 		claims := token.Claims.(jwt.MapClaims)
 
@@ -254,7 +259,38 @@ func (s *APIServer) handleLogin(w http.ResponseWriter, r *http.Request) error {
 	}
 	// fmt.Print(req)
 
-	return WriteJson(w, http.StatusOK, loginRequest)
+	acc, err := s.store.GetAccountByNumber(int(loginRequest.Number))
+
+	if err != nil {
+		return err
+	}
+
+	/*
+
+		What we should do here is to validate the Encrypted password we get from the DB
+		using the method we have in Types package to validate the passowrd
+		if the password is valid, thn we can create a JWTToken and give it as a response to the client so we can hndle it there
+
+	*/
+
+	if !acc.ValidatePassword(loginRequest.Password) {
+		return fmt.Errorf("Not Authenticated !")
+	}
+
+	token, err := createJWT(acc)
+
+	if err != nil {
+		return err
+	}
+
+	LoginResponse := LoginResponse{
+		Token:  token,
+		Number: acc.Number,
+	}
+
+	fmt.Printf("%+v\n", acc)
+
+	return WriteJson(w, http.StatusOK, LoginResponse)
 }
 
 func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error {

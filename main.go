@@ -6,6 +6,11 @@ import (
 	store "github.com/amine-elghazali/Backend-Go/store"
 )
 
+/*
+	We could add a seeder script to insert predefined data into a database for testing purposes
+	" a seeder for creating a pre-defined User account  ... "
+*/
+
 func main() {
 
 	pgStore, err := store.NewPostgresStore()
