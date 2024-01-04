@@ -1,10 +1,12 @@
-# Starting a Golang backend service :
+# Starting a Go backend service 🐹 :
+
+[![Go Reference](https://pkg.go.dev/badge/golang.org/x/example.svg)](https://pkg.go.dev/)
 
 ## Bank Backend API
 
 A simple backend API for managing bank accounts, user authentication, and money transfers.
 
-## Features
+## Features ✨
 
 - User registration and authentication using JWT.
 - Creating and managing bank accounts.
