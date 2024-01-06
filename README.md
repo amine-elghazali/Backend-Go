@@ -1,4 +1,4 @@
-# Starting a Go backend service :
+# Go backend service :
 
 [![Go Reference](https://pkg.go.dev/badge/golang.org/x/example.svg)](https://pkg.go.dev/)
 
